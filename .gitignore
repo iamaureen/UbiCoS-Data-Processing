@@ -1,6 +1,8 @@
 #Data Folder Contains Data Related to the study
 Data/
 
+#idea folder
+.idea/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

@@ -17,14 +17,12 @@ output: an excel file 'gm.xls' with users as one column, and their comments on t
 input: image_data.txt </br>
 [run ubicos server, and hit http://127.0.0.1:8000/getimageCommentMsg in the browser.
 It will display a dict with users as key, and their comments in galleries as values for that key]</br>
-
 output: an excel file 'image.xls' with users as one column, and their comments on the second column.
 
 * **merge.py:**
 input: gm_data.txt, image_data.txt, and ka_data.txt </br>
 [run ubicos server, and hit http://127.0.0.1:8000/getkhanAcademyMsg in the browser.
 It will display a dict with users as key, and their comments in galleries as values for that key] </br>
-
 output: an excel file 'merge.xls' with three different sheets: general chat, image comments and Khan Academy comments.
 For all sheets, users as one column, and their comments on the second column. For Khan Academy sheet, we also have whether
 each utterance/comment is of type answer/question 
@@ -40,9 +38,9 @@ output: an excel file 'row.xls' all the values combined in one sheet, and put th
 
 **So, steps:**
 -----------
-1. run server and get data from the server
-general chat message: http://127.0.0.1:8000/getGeneralChatMsg
-image messages (all galleries): http://127.0.0.1:8000/getimageCommentMsg
+1. run server and get data from the server: </br>
+general chat message: http://127.0.0.1:8000/getGeneralChatMsg </br>
+image messages (all galleries): http://127.0.0.1:8000/getimageCommentMsg </br>
 khan academy messages: http://127.0.0.1:8000/getkhanAcademyMsg
 
 2. for each of the urls above, save the data in three separate text files.

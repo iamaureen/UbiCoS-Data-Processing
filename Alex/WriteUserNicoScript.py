@@ -16,11 +16,11 @@ import pandas as pd
 from datetime import datetime
 import xlsxwriter
 
+
 def genDictionary(dirty, minTime, maxTime):
 	dirtyRowCount = dirty.shape[0] - 2
 	dirtyIndex = 1
 	dialogueDictionary  = {}
-
 	while dirtyIndex < dirtyRowCount:
 
 		if isinstance(dirty.iloc[dirtyIndex]['DateTime'], str):
@@ -30,11 +30,13 @@ def genDictionary(dirty, minTime, maxTime):
 				currUser = dirty.iloc[dirtyIndex]['UserID']
 				currOwner = dirty.iloc[dirtyIndex]['Owner']
 				currTranscript = dirty.iloc[dirtyIndex]['Transcript']
+				currProblem = dirty.iloc[dirtyIndex]['ProblemID']
+				currTime = currDatetime.strftime('%H:%M:%S')
 
 				if currUser not in dialogueDictionary:
-					dialogueDictionary[currUser] = [(currOwner, currTranscript)]
+					dialogueDictionary[currUser] = [(int(currProblem), currTime, currOwner, currTranscript)]
 				else:
-					dialogueDictionary[currUser].append((currOwner, currTranscript))
+					dialogueDictionary[currUser].append((int(currProblem), currTime, currOwner, currTranscript))
 
 		dirtyIndex += 1
 
@@ -46,24 +48,34 @@ def writeScript(dialogueDictionary, destFile):
 	workbook.formats[0].set_border_color('white')
 	worksheet = workbook.add_worksheet('Dialogue')
 
-	header_format = workbook.add_format({'bold': True, 'italic': True, 'font_size': 14})
+	header_format = workbook.add_format({'bold': True, 'italic': True, 'font_size': 16})
 	speaker_format = workbook.add_format({'bold': True, 'valign': 'top'})
+	time_format = workbook.add_format({'italic': True, 'valign': 'top'})
+	problem_format = workbook.add_format({'underline': True, 'bold': True, 'font_size': 14})
+	transcript_format = workbook.add_format({'valign': 'top'})
 
 	rowNum = 0
+
 	for user, dialogue in dialogueDictionary.items():
+		currProb = -1
 		worksheet.write(rowNum, 0, user.upper(), header_format)
-		rowNum += 2
+		rowNum += 1
 		for pair in dialogue:
-			worksheet.write(rowNum, 0, pair[0] + ':', speaker_format)
-			worksheet.write(rowNum, 1, pair[1])
+			if currProb != pair[0]:
+				rowNum += 1
+				worksheet.write(rowNum, 0, 'Problem ' + str(pair[0]), problem_format)
+				rowNum += 1
+			worksheet.write(rowNum, 0, pair[1], time_format)
+			worksheet.write(rowNum, 1, pair[2] + ':', speaker_format)
+			worksheet.write(rowNum, 2, pair[3], transcript_format)
 			rowNum += 1
+			currProb = pair[0]
 		rowNum += 1
 
 	writer.save()
 
 def cleanLogs(mergedFile, destFile, minTime, maxTime):
 	dirty = pd.read_csv(mergedFile, names=["StateKey","UserID","DateTime","SessionID","ProblemID","StepID","Owner","DialogueAct","DialogueActConfidence","Spoke","StepAnswer","ClickStep","NicoMove","Answered","Transcript"], infer_datetime_format=True)
-
 	dialogueDictionary = genDictionary(dirty, minTime, maxTime)
 
 	writeScript(dialogueDictionary, destFile)
@@ -78,8 +90,7 @@ def main():
 
 	# ADJUST THESE TO YOUR APPROPRIATE DATE RANGE OF STUDY TO ANALYZE
 	minTime = datetime(year=2019, month=3, day=4, hour=12, minute=0, second=0)
-	maxTime = datetime(year=2019, month=3, day=4, hour=15, minute=0, second=0)
-
+	maxTime = datetime(year=2019, month=3, day=4, hour=16, minute=0, second=0)
 	cleanLogs(mergedFile, destFile, minTime, maxTime)
 
 
